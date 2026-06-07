@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}Your recommendations | TechPath{% endblock %}
+{% block content %}
+<section class="results-shell section-shell" id="results-content" hidden>
+    <div class="results-heading">
+        <span class="eyebrow">Your assessment results</span>
+        <h1>A strong place to begin.</h1>
+        <p>Your answers point toward these domains. Treat the result as a shortlist to test through projects and conversations.</p>
+    </div>
+    <div class="top-result" id="top-result"></div>
+
+    <div class="results-layout">
+        <section class="result-panel">
+            <div class="panel-heading"><div><span class="eyebrow">Your shortlist</span><h2>Alternative matches</h2></div><span>Top 5</span></div>
+            <div class="recommendation-list" id="recommendation-list"></div>
+        </section>
+        <aside class="result-panel">
+            <div class="panel-heading"><div><span class="eyebrow">What stood out</span><h2>Strongest traits</h2></div></div>
+            <div class="trait-list" id="trait-list"></div>
+        </aside>
+    </div>
+    <div class="result-actions">
+        <a class="button button-secondary" href="/assessment">Retake assessment</a>
+        <a class="text-link" href="/domains">Explore all domains →</a>
+    </div>
+</section>
+
+<section class="section-shell missing-results" id="missing-results" hidden>
+    <span class="eyebrow">No result found</span>
+    <h1>Complete the assessment first.</h1>
+    <p>Your recommendations will appear here as soon as your answers are scored.</p>
+    <a class="button button-primary" href="/assessment">Start assessment</a>
+</section>
+{% endblock %}
+{% block scripts %}<script src="{{ url_for('static', path='/js/results.js') }}"></script>{% endblock %}
+

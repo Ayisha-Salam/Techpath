@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block title %}TechPath | Find your place in technology{% endblock %}
+{% block content %}
+<section class="hero section-shell">
+    <div class="hero-copy">
+        <span class="eyebrow">Career clarity for IT students</span>
+        <h1>Find the tech path that feels like <em>you.</em></h1>
+        <p class="hero-lead">Explore {{ domain_count }} IT careers or take a focused 25-question assessment to connect your strengths, interests, and working style with domains worth pursuing.</p>
+        <div class="button-row">
+            <a class="button button-primary" href="/choose">Start now <span aria-hidden="true">→</span></a>
+            <a class="button button-secondary" href="/domains">Browse all domains</a>
+        </div>
+        <div class="trust-row">
+            <span>25 thoughtful questions</span>
+            <span>20 career traits</span>
+            <span>Actionable roadmaps</span>
+        </div>
+    </div>
+    <div class="hero-visual" aria-label="Career recommendation preview">
+        <div class="orbit orbit-one"></div>
+        <div class="orbit orbit-two"></div>
+        <div class="preview-card preview-main">
+            <span class="mini-label">Your strongest match</span>
+            <div class="preview-heading">
+                <span class="domain-symbol">AI</span>
+                <div><strong>AI & Machine Learning</strong><small>Strong analytical fit</small></div>
+            </div>
+            <div class="match-meter"><span style="width: 88%"></span></div>
+            <div class="preview-tags"><span>Problem solving</span><span>Curiosity</span></div>
+        </div>
+        <div class="preview-card preview-small top"><strong>25</strong><span>career domains</span></div>
+        <div class="preview-card preview-small bottom"><strong>4-stage</strong><span>learning roadmap</span></div>
+    </div>
+</section>
+
+<section class="section-shell stats-band" aria-label="Platform highlights">
+    <div><strong>{{ domain_count }}</strong><span>IT domains mapped</span></div>
+    <div><strong>5</strong><span>personalized matches</span></div>
+    <div><strong>2</strong><span>ways to begin</span></div>
+    <div><strong>1</strong><span>clear next step</span></div>
+</section>
+
+<section class="section-shell section-block">
+    <div class="section-heading centered">
+        <span class="eyebrow">How it works</span>
+        <h2>From uncertainty to a practical next step</h2>
+        <p>No vague personality labels. TechPath connects your responses to concrete domains, skills, projects, and learning resources.</p>
+    </div>
+    <div class="steps-grid">
+        <article class="step-card"><span class="step-number">01</span><h3>Choose your route</h3><p>Already have a domain in mind? Explore it directly. Still deciding? Take the assessment.</p></article>
+        <article class="step-card featured"><span class="step-number">02</span><h3>Understand your fit</h3><p>See your five strongest domain matches and the career traits that shaped them.</p></article>
+        <article class="step-card"><span class="step-number">03</span><h3>Build your roadmap</h3><p>Follow staged skills, career options, and curated course searches from NPTEL and Coursera.</p></article>
+    </div>
+</section>
+
+<section class="section-shell cta-panel">
+    <div><span class="eyebrow light">Your path can start today</span><h2>Turn “I’m not sure” into something you can explore.</h2></div>
+    <a class="button button-light" href="/choose">Find my direction <span aria-hidden="true">→</span></a>
+</section>
+{% endblock %}
+

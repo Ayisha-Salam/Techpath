@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}Choose your path | TechPath{% endblock %}
+{% block content %}
+<section class="page-hero compact section-shell">
+    <span class="eyebrow">Start where you are</span>
+    <h1>How would you like to move forward?</h1>
+    <p>Both routes lead to a practical roadmap. Choose the one that matches how certain you feel today.</p>
+</section>
+
+<section class="section-shell path-grid">
+    <a class="path-card sure" href="/domains">
+        <span class="path-icon">01</span>
+        <span class="path-kicker">I have a direction</span>
+        <h2>I’m sure</h2>
+        <p>Browse {{ domain_count }} technology domains, choose one, and go straight to its skills and learning roadmap.</p>
+        <ul class="check-list">
+            <li>Explore every IT domain</li>
+            <li>Compare skills and careers</li>
+            <li>Open a roadmap immediately</li>
+        </ul>
+        <span class="text-link">Explore domains <span aria-hidden="true">→</span></span>
+    </a>
+    <a class="path-card guidance" href="/assessment">
+        <span class="recommended-badge">Recommended if undecided</span>
+        <span class="path-icon">02</span>
+        <span class="path-kicker">Help me discover</span>
+        <h2>I need guidance</h2>
+        <p>Answer 25 focused questions and receive five domain recommendations based on your interests and working style.</p>
+        <ul class="check-list">
+            <li>Takes about 5 minutes</li>
+            <li>Personalized top-five matches</li>
+            <li>See the traits behind your results</li>
+        </ul>
+        <span class="text-link">Take the assessment <span aria-hidden="true">→</span></span>
+    </a>
+</section>
+{% endblock %}
+

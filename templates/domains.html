@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %}Explore IT domains | TechPath{% endblock %}
+{% block content %}
+<section class="page-hero compact section-shell left">
+    <span class="eyebrow">Explore possibilities</span>
+    <h1>Choose a domain. See the road ahead.</h1>
+    <p>Filter by area or search for a role, skill, or interest. Every domain includes a staged roadmap and course resources.</p>
+</section>
+
+<section class="section-shell domain-browser">
+    <div class="browser-tools">
+        <label class="search-box">
+            <span aria-hidden="true">⌕</span>
+            <input id="domain-search" type="search" placeholder="Search domains or skills..." autocomplete="off">
+        </label>
+        <div class="filter-row" id="domain-filters">
+            <button class="filter-chip active" data-filter="all">All</button>
+            <button class="filter-chip" data-filter="development">Development</button>
+            <button class="filter-chip" data-filter="data">Data & AI</button>
+            <button class="filter-chip" data-filter="infrastructure">Infrastructure</button>
+            <button class="filter-chip" data-filter="creative">Creative</button>
+            <button class="filter-chip" data-filter="business">Business</button>
+            <button class="filter-chip" data-filter="hardware">Hardware</button>
+        </div>
+    </div>
+    <div class="domain-grid" id="domain-grid">
+        {% for domain in domains %}
+        <a class="domain-card" href="/roadmap/{{ domain.slug }}" data-category="{{ domain.category }}" data-search="{{ domain.name|lower }} {{ domain.summary|lower }} {{ domain.skills|join(' ')|lower }}">
+            <span class="domain-monogram">{{ domain.name[0] }}</span>
+            <span class="domain-category">{{ domain.category }}</span>
+            <h2>{{ domain.name }}</h2>
+            <p>{{ domain.summary }}</p>
+            <span class="card-action">View roadmap <span aria-hidden="true">→</span></span>
+        </a>
+        {% endfor %}
+    </div>
+    <p class="empty-state" id="empty-state" hidden>No domains match that search. Try a broader term.</p>
+</section>
+{% endblock %}
+{% block scripts %}<script src="{{ url_for('static', path='/js/domains.js') }}"></script>{% endblock %}
+

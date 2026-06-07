@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block title %}Career assessment | TechPath{% endblock %}
+{% block content %}
+<section class="assessment-shell section-shell">
+    <div class="assessment-intro" id="assessment-intro">
+        <span class="eyebrow">25-question assessment</span>
+        <h1>Discover the IT work that fits how you think.</h1>
+        <p>Rate each statement honestly. There are no right answers, and your first instinct is usually the most useful.</p>
+        <div class="assessment-facts">
+            <div><strong>5 min</strong><span>average time</span></div>
+            <div><strong>1–5</strong><span>agreement scale</span></div>
+            <div><strong>Top 5</strong><span>domain matches</span></div>
+        </div>
+        <button class="button button-primary" id="begin-assessment" type="button">Begin assessment <span aria-hidden="true">→</span></button>
+        <p class="privacy-note">Your answers stay in this browser and are only sent for scoring.</p>
+    </div>
+
+    <div class="quiz-card" id="quiz-card" hidden>
+        <div class="quiz-topline">
+            <span id="question-count">Question 1 of 25</span>
+            <span id="progress-percent">4% complete</span>
+        </div>
+        <div class="progress-track"><span id="progress-bar"></span></div>
+        <div class="question-content">
+            <span class="question-label">How much do you agree?</span>
+            <h1 id="question-text">Loading question...</h1>
+            <div class="rating-grid" id="rating-grid" role="radiogroup" aria-label="Agreement rating">
+                <button type="button" data-value="1"><strong>1</strong><span>Strongly disagree</span></button>
+                <button type="button" data-value="2"><strong>2</strong><span>Disagree</span></button>
+                <button type="button" data-value="3"><strong>3</strong><span>Neutral</span></button>
+                <button type="button" data-value="4"><strong>4</strong><span>Agree</span></button>
+                <button type="button" data-value="5"><strong>5</strong><span>Strongly agree</span></button>
+            </div>
+        </div>
+        <p class="quiz-message" id="quiz-message" aria-live="polite"></p>
+        <div class="quiz-actions">
+            <button class="button button-secondary" id="previous-question" type="button">← Previous</button>
+            <button class="button button-primary" id="next-question" type="button">Next question →</button>
+        </div>
+    </div>
+</section>
+{% endblock %}
+{% block scripts %}<script src="{{ url_for('static', path='/js/assessment.js') }}"></script>{% endblock %}
+
