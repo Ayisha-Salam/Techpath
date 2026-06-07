@@ -8,7 +8,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{{ url_for('static', path='/app.css') }}">
+    <link rel="stylesheet" href="/assets/app.css">
     {% block head %}{% endblock %}
 </head>
 <body>
@@ -43,8 +43,7 @@
         <p class="footer-note">For educational guidance, not clinical or psychological diagnosis.</p>
     </footer>
 
-    <script src="{{ url_for('static', path='/common.js') }}"></script>
+    <script src="/assets/common.js"></script>
     {% block scripts %}{% endblock %}
 </body>
 </html>
-
