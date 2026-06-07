@@ -1,7 +1,7 @@
 from pathlib import Path
 
 from fastapi import FastAPI, HTTPException, Request
-from fastapi.responses import HTMLResponse
+from fastapi.responses import FileResponse, HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel, Field
@@ -20,6 +20,14 @@ app = FastAPI(
 app.mount("/static", StaticFiles(directory=BASE_DIR / "static"), name="static")
 templates = Jinja2Templates(directory=BASE_DIR / "templates")
 
+ASSET_PATHS = {
+    "app.css": ("css", "app.css"),
+    "common.js": ("js", "common.js"),
+    "domains.js": ("js", "domains.js"),
+    "assessment.js": ("js", "assessment.js"),
+    "results.js": ("js", "results.js"),
+}
+
 
 class AssessmentSubmission(BaseModel):
     answers: list[int] = Field(min_length=25, max_length=25)
@@ -31,6 +39,21 @@ def render(request: Request, template: str, **context):
         name=template,
         context={"domain_count": len(DOMAINS), **context},
     )
+
+
+@app.get("/assets/{filename}", include_in_schema=False)
+def asset(filename: str):
+    relative_path = ASSET_PATHS.get(filename)
+    if not relative_path:
+        raise HTTPException(status_code=404, detail="Asset not found")
+
+    flat_path = BASE_DIR / "static" / filename
+    nested_path = BASE_DIR / "static" / Path(*relative_path)
+    asset_path = flat_path if flat_path.is_file() else nested_path
+
+    if not asset_path.is_file():
+        raise HTTPException(status_code=404, detail="Asset not found")
+    return FileResponse(asset_path)
 
 
 @app.get("/", response_class=HTMLResponse)
@@ -102,4 +125,3 @@ def api_assessment(submission: AssessmentSubmission):
     if any(answer < 1 or answer > 5 for answer in submission.answers):
         raise HTTPException(status_code=422, detail="Every answer must be between 1 and 5")
     return score_assessment(submission.answers)
-
