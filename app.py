@@ -1,4 +1,5 @@
 from pathlib import Path
+from random import choice
 
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import FileResponse, HTMLResponse
@@ -6,7 +7,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel, Field
 
-from career_data import DOMAINS, QUESTIONS, TRAIT_LABELS, get_domain_by_slug
+from career_data import DOMAINS, QUESTIONS, QUESTION_SETS, TRAIT_LABELS, get_domain_by_slug
 from scoring import score_assessment
 
 
@@ -31,6 +32,7 @@ ASSET_PATHS = {
 
 class AssessmentSubmission(BaseModel):
     answers: list[int] = Field(min_length=25, max_length=25)
+    question_set_id: str = Field(min_length=1)
 
 
 def render(request: Request, template: str, **context):
@@ -90,11 +92,17 @@ def roadmap(request: Request, slug: str):
 
 
 @app.get("/api/questions")
-def api_questions():
+def api_questions(exclude_set_id: str | None = None):
+    available_sets = list(QUESTION_SETS)
+    if exclude_set_id in QUESTION_SETS and len(available_sets) > 1:
+        available_sets = [set_id for set_id in available_sets if set_id != exclude_set_id]
+    question_set_id = choice(available_sets)
+    questions = QUESTION_SETS[question_set_id]
     return {
+        "question_set_id": question_set_id,
         "questions": [
             {"id": index + 1, "text": question}
-            for index, question in enumerate(QUESTIONS)
+            for index, question in enumerate(questions)
         ],
         "scale": {
             "min": 1,
@@ -124,4 +132,6 @@ def api_domains():
 def api_assessment(submission: AssessmentSubmission):
     if any(answer < 1 or answer > 5 for answer in submission.answers):
         raise HTTPException(status_code=422, detail="Every answer must be between 1 and 5")
-    return score_assessment(submission.answers)
+    if submission.question_set_id not in QUESTION_SETS:
+        raise HTTPException(status_code=422, detail="Unknown question set")
+    return score_assessment(submission.answers, submission.question_set_id)
