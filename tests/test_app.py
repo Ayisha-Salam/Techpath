@@ -3,7 +3,7 @@ from html import unescape
 from fastapi.testclient import TestClient
 
 from app import app
-from career_data import DOMAINS, QUESTIONS
+from career_data import DOMAINS, QUESTIONS, QUESTION_SETS
 
 
 client = TestClient(app)
@@ -24,11 +24,32 @@ def test_frontend_assets_render_from_stable_urls():
 def test_catalog_has_25_domains_and_questions():
     assert len(DOMAINS) == 25
     assert len(QUESTIONS) == 25
+    assert len(QUESTION_SETS) == 5
+    assert all(len(questions) == 25 for questions in QUESTION_SETS.values())
     assert len({domain["slug"] for domain in DOMAINS}) == 25
 
 
+def test_questions_endpoint_returns_a_set_id():
+    response = client.get("/api/questions")
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["question_set_id"] in QUESTION_SETS
+    assert len(payload["questions"]) == 25
+
+
+def test_questions_endpoint_can_exclude_previous_set():
+    response = client.get("/api/questions?exclude_set_id=set-1")
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["question_set_id"] in QUESTION_SETS
+    assert payload["question_set_id"] != "set-1"
+
+
 def test_assessment_returns_ranked_recommendations():
-    response = client.post("/api/assessment", json={"answers": [4] * 25})
+    response = client.post(
+        "/api/assessment",
+        json={"answers": [4] * 25, "question_set_id": "set-1"},
+    )
     assert response.status_code == 200
     payload = response.json()
     assert len(payload["recommendations"]) == 5
@@ -38,7 +59,18 @@ def test_assessment_returns_ranked_recommendations():
 
 
 def test_assessment_rejects_invalid_answers():
-    response = client.post("/api/assessment", json={"answers": [6] * 25})
+    response = client.post(
+        "/api/assessment",
+        json={"answers": [6] * 25, "question_set_id": "set-1"},
+    )
+    assert response.status_code == 422
+
+
+def test_assessment_rejects_unknown_question_set():
+    response = client.post(
+        "/api/assessment",
+        json={"answers": [4] * 25, "question_set_id": "missing"},
+    )
     assert response.status_code == 422
 
 
