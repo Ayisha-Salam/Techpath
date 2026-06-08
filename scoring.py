@@ -1,11 +1,15 @@
-from career_data import DOMAIN_WEIGHTS, DOMAINS, QUESTION_TRAITS, TRAIT_LABELS
+from career_data import DOMAIN_WEIGHTS, DOMAINS, TRAIT_LABELS, get_question_traits
 
 
-def calculate_trait_scores(answers: list[int]) -> dict[str, float]:
+def calculate_trait_scores(answers: list[int], question_set_id: str) -> dict[str, float]:
+    question_traits = get_question_traits(question_set_id)
+    if not question_traits:
+        raise ValueError("Unknown question set")
+
     totals = {trait: 0.0 for trait in TRAIT_LABELS}
     maximums = {trait: 0.0 for trait in TRAIT_LABELS}
 
-    for answer, mapping in zip(answers, QUESTION_TRAITS):
+    for answer, mapping in zip(answers, question_traits):
         for trait, weight in mapping.items():
             totals[trait] += answer * weight
             maximums[trait] += 5 * weight
@@ -41,8 +45,8 @@ def calculate_domain_scores(traits: dict[str, float]) -> list[dict]:
     return sorted(scored, key=lambda item: item["score"], reverse=True)
 
 
-def score_assessment(answers: list[int]) -> dict:
-    traits = calculate_trait_scores(answers)
+def score_assessment(answers: list[int], question_set_id: str) -> dict:
+    traits = calculate_trait_scores(answers, question_set_id)
     ranked_domains = calculate_domain_scores(traits)
     top_traits = sorted(traits.items(), key=lambda item: item[1], reverse=True)[:5]
 
@@ -56,5 +60,5 @@ def score_assessment(answers: list[int]) -> dict:
             "Responses are normalized across 20 career traits and compared with "
             "weighted profiles for 25 IT domains."
         ),
+        "question_set_id": question_set_id,
     }
-
