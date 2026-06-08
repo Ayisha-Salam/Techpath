@@ -13,11 +13,16 @@ const message = document.querySelector("#quiz-message");
 let questions = [];
 let answers = [];
 let currentIndex = 0;
+let questionSetId = null;
 
 async function loadQuestions() {
-    const response = await fetch("/api/questions");
+    const previousSetId = localStorage.getItem("techpathLastQuestionSetId");
+    const query = previousSetId ? `?exclude_set_id=${encodeURIComponent(previousSetId)}` : "";
+    const response = await fetch(`/api/questions${query}`);
     if (!response.ok) throw new Error("Could not load the assessment.");
     const data = await response.json();
+    questionSetId = data.question_set_id;
+    localStorage.setItem("techpathLastQuestionSetId", questionSetId);
     questions = data.questions;
     answers = new Array(questions.length).fill(null);
 }
@@ -31,7 +36,7 @@ function renderQuestion() {
     progressPercent.textContent = `${progress}% complete`;
     progressBar.style.width = `${progress}%`;
     previousButton.disabled = currentIndex === 0;
-    nextButton.textContent = currentIndex === questions.length - 1 ? "See my results →" : "Next question →";
+    nextButton.textContent = currentIndex === questions.length - 1 ? "See my results ->" : "Next question ->";
     message.textContent = "";
 
     ratingButtons.forEach((button) => {
@@ -50,7 +55,7 @@ async function submitAssessment() {
         const response = await fetch("/api/assessment", {
             method: "POST",
             headers: {"Content-Type": "application/json"},
-            body: JSON.stringify({answers}),
+            body: JSON.stringify({answers, question_set_id: questionSetId}),
         });
         if (!response.ok) throw new Error("Your results could not be calculated.");
         const result = await response.json();
@@ -73,7 +78,7 @@ beginButton.addEventListener("click", async () => {
         renderQuestion();
     } catch (error) {
         beginButton.disabled = false;
-        beginButton.textContent = "Begin assessment →";
+        beginButton.textContent = "Begin assessment ->";
         intro.querySelector(".privacy-note").textContent = error.message;
     }
 });
@@ -104,4 +109,3 @@ nextButton.addEventListener("click", () => {
     currentIndex += 1;
     renderQuestion();
 });
-
