@@ -53,6 +53,118 @@ QUESTIONS = [
     "I enjoy understanding both the technical details and the bigger picture of a project.",
 ]
 
+QUESTION_SETS = {
+    "set-1": QUESTIONS,
+    "set-2": [
+        "I enjoy identifying weaknesses in a process and finding ways to strengthen it.",
+        "I can remain focused on a task even when distractions are present.",
+        "I enjoy learning how different technologies interact with each other.",
+        "I am comfortable explaining my ideas to a group of people.",
+        "I often consider multiple perspectives before forming an opinion.",
+        "I enjoy solving puzzles, logic problems, or technical challenges.",
+        "I take responsibility when mistakes occur and work to correct them.",
+        "I enjoy working on projects that require both creativity and structure.",
+        "I can quickly understand new tools, systems, or software.",
+        "I prefer making decisions based on facts rather than assumptions.",
+        "I enjoy collaborating with others to achieve shared goals.",
+        "I remain productive even when deadlines are tight.",
+        "I enjoy exploring ideas that could improve future products or services.",
+        "I carefully verify information before acting on it.",
+        "I am comfortable leading discussions when a team lacks direction.",
+        "I enjoy understanding why systems fail and how to prevent future issues.",
+        "I can adapt my communication style to different people and situations.",
+        "I enjoy setting long-term goals and planning how to achieve them.",
+        "I am willing to take calculated risks when potential rewards justify them.",
+        "I enjoy analyzing data to uncover useful insights.",
+        "I actively seek opportunities to improve professional skills.",
+        "I enjoy balancing technical requirements with customer or business needs.",
+        "I stay calm and make decisions effectively during unexpected situations.",
+        "I often suggest new ideas that could improve team performance.",
+        "I enjoy understanding both the details of a problem and its broader impact.",
+    ],
+    "set-3": [
+        "I enjoy building relationships that help achieve long-term goals.",
+        "I can evaluate multiple options and choose the best course of action.",
+        "I enjoy documenting my work so others can easily understand it.",
+        "I often think ahead and anticipate potential problems.",
+        "I like automating or simplifying repetitive tasks.",
+        "I enjoy exploring how data can be used to solve real-world problems.",
+        "I can manage multiple tasks without compromising quality.",
+        "I enjoy negotiating and finding win-win solutions.",
+        "I enjoy reverse-engineering problems to understand their root cause.",
+        "I am comfortable working in fast-paced environments.",
+        "I enjoy designing systems or processes from scratch.",
+        "I like keeping up with industry trends and emerging technologies.",
+        "I pay attention to security and privacy in everything I do.",
+        "I enjoy presenting ideas and influencing others.",
+        "I can learn from failure and use it to improve.",
+        "I enjoy thinking about how technology can solve societal challenges.",
+        "I like testing things thoroughly to ensure they work as expected.",
+        "I can explain complex ideas in simple terms.",
+        "I enjoy collaborating across different teams or departments.",
+        "I am proactive in identifying opportunities for improvement.",
+        "I enjoy estimating risks and preparing contingency plans.",
+        "I remain organized even when managing complex projects.",
+        "I enjoy mentoring or coaching others.",
+        "I enjoy learning by doing hands-on projects.",
+        "I always look for ways to deliver more value to users or customers.",
+    ],
+    "set-4": [
+        "I enjoy discovering patterns in large amounts of information.",
+        "I can understand how different business processes connect with each other.",
+        "I enjoy investigating unusual activities to find their source.",
+        "I enjoy advising others on how technology can improve their work.",
+        "I enjoy creating prompts that generate useful and creative AI outputs.",
+        "I prefer making decisions based on evidence rather than assumptions.",
+        "I enjoy understanding customer needs before proposing solutions.",
+        "I am curious about how digital systems can be exploited or protected.",
+        "I enjoy presenting technical ideas to non-technical audiences.",
+        "I frequently experiment with new AI tools and technologies.",
+        "I can quickly identify inefficiencies in a workflow or process.",
+        "I enjoy coordinating different teams to achieve a common objective.",
+        "I pay close attention to security, compliance, and data integrity.",
+        "I enjoy evaluating multiple solution options before making recommendations.",
+        "I enjoy refining prompts until AI responses become highly accurate.",
+        "I enjoy transforming raw data into meaningful business insights.",
+        "I can remain objective when analyzing sensitive information.",
+        "I enjoy understanding how technology decisions affect business outcomes.",
+        "I am comfortable learning new software platforms without much guidance.",
+        "I enjoy investigating digital evidence to reconstruct events.",
+        "I can balance innovation with practical business requirements.",
+        "I enjoy helping organizations solve complex technology challenges.",
+        "I actively seek opportunities to improve AI-generated results.",
+        "I enjoy creating structured processes that improve efficiency.",
+        "I enjoy combining analytical thinking with creativity to solve problems.",
+    ],
+    "set-5": [
+        "I enjoy identifying assumptions that could cause a project to fail.",
+        "I often combine ideas from unrelated areas to solve problems.",
+        "I prefer understanding the purpose behind a rule before following it.",
+        "I can remain productive when project requirements change frequently.",
+        "I enjoy comparing long-term consequences before choosing an approach.",
+        "I can recognize when a team is losing momentum and help restore focus.",
+        "I frequently notice opportunities for improvement that others overlook.",
+        "I enjoy converting broad goals into clear action plans.",
+        "I look for recurring causes behind repeated mistakes or failures.",
+        "I enjoy studying how successful organizations achieve consistent performance.",
+        "I am willing to make difficult decisions when others hesitate.",
+        "I enjoy identifying dependencies that could delay a project's success.",
+        "I enjoy finding practical applications for newly emerging technologies.",
+        "I naturally consider how decisions affect different stakeholders.",
+        "I can maintain accuracy while processing large amounts of information.",
+        "I enjoy identifying bottlenecks that slow down progress.",
+        "I enjoy exploring alternative methods even when the current approach works adequately.",
+        "I can determine which information is most important when facing information overload.",
+        "I enjoy helping people reach agreement during disagreements.",
+        "I am interested in understanding how small changes can create significant outcomes.",
+        "I enjoy designing methods that make work easier for others.",
+        "I can evaluate opportunities even when complete information is unavailable.",
+        "I enjoy investigating how decisions made in one area affect results in another.",
+        "I continue improving a solution even after it meets minimum requirements.",
+        "I enjoy integrating technical knowledge with human needs to create effective solutions.",
+    ],
+}
+
 
 QUESTION_TRAITS = [
     {"AT": 1.0, "PS": 0.7, "TA": 0.5},
@@ -81,6 +193,16 @@ QUESTION_TRAITS = [
     {"CR": 0.8, "PS": 1.0, "DM": 0.4},
     {"ST": 0.8, "TA": 0.7, "BA": 0.7},
 ]
+
+QUESTION_TRAIT_SETS = {set_id: QUESTION_TRAITS for set_id in QUESTION_SETS}
+
+
+def get_question_set(set_id: str):
+    return QUESTION_SETS.get(set_id)
+
+
+def get_question_traits(set_id: str):
+    return QUESTION_TRAIT_SETS.get(set_id)
 
 
 DOMAIN_WEIGHTS = {
@@ -193,4 +315,3 @@ DOMAINS = [
 
 def get_domain_by_slug(slug: str):
     return next((domain for domain in DOMAINS if domain["slug"] == slug), None)
-
