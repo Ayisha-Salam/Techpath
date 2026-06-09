@@ -4,12 +4,12 @@
 <section class="roadmap-hero">
     <div class="section-shell roadmap-hero-inner">
         <div>
-            <a class="back-link" href="/domains">← All domains</a>
+            <a class="back-link" href="/domains">&larr; All domains</a>
             <span class="domain-category light-text">{{ domain.category }}</span>
             <h1>{{ domain.name }}</h1>
             <p>{{ domain.summary }}</p>
             <div class="button-row">
-                <a class="button button-light" href="#roadmap">View learning path ↓</a>
+                <a class="button button-light" href="#roadmap">View learning path &darr;</a>
                 <a class="button button-ghost" href="/assessment">Check my fit</a>
             </div>
         </div>
@@ -26,15 +26,32 @@
     <div class="roadmap-main">
         <div class="section-heading left">
             <span class="eyebrow">Learning path</span>
-            <h2>Build capability in four stages</h2>
+            <h2>Build capability across the degree timeline</h2>
         </div>
         <div class="timeline">
             {% for step in domain.roadmap %}
             <article class="timeline-step">
                 <span class="timeline-number">{{ "%02d"|format(step.stage) }}</span>
-                <div><span class="timeline-duration">{{ step.duration }}</span><h3>{{ step.title }}</h3><p>Learn the foundations, practise with small builds, and keep evidence of your work in a portfolio.</p></div>
+                <div>
+                    <span class="timeline-duration">{{ step.duration }}</span>
+                    <h3>{{ step.title }}</h3>
+                    <p>Focus on practical work, visible proof of learning, and steady preparation for internships or placement.</p>
+                </div>
             </article>
             {% endfor %}
+        </div>
+
+        <div class="roadmap-detail-grid">
+            <section class="info-card">
+                <span class="eyebrow">Milestones</span>
+                <h2>Project ideas</h2>
+                <ul class="role-list">{% for project in domain.projects %}<li><span>{{ loop.index }}</span>{{ project }}</li>{% endfor %}</ul>
+            </section>
+            <section class="info-card">
+                <span class="eyebrow">Credentials</span>
+                <h2>Certifications to consider</h2>
+                <ul class="role-list">{% for certification in domain.certifications %}<li><span>{{ loop.index }}</span>{{ certification }}</li>{% endfor %}</ul>
+            </section>
         </div>
     </div>
     <aside class="roadmap-sidebar">
@@ -44,9 +61,24 @@
             <div class="skill-cloud">{% for skill in domain.skills %}<span>{{ skill }}</span>{% endfor %}</div>
         </section>
         <section class="info-card">
+            <span class="eyebrow">Personal fit</span>
+            <h2>Essential qualities</h2>
+            <div class="skill-cloud">{% for quality in domain.qualities %}<span>{{ quality }}</span>{% endfor %}</div>
+        </section>
+        <section class="info-card">
             <span class="eyebrow">Career options</span>
             <h2>Roles to explore</h2>
             <ul class="role-list">{% for career in domain.careers %}<li><span>{{ loop.index }}</span>{{ career }}</li>{% endfor %}</ul>
+        </section>
+        <section class="info-card">
+            <span class="eyebrow">Hiring targets</span>
+            <h2>Companies to research</h2>
+            <div class="skill-cloud compact-cloud">{% for company in domain.companies %}<span>{{ company }}</span>{% endfor %}</div>
+        </section>
+        <section class="info-card">
+            <span class="eyebrow">Preparation</span>
+            <h2>Useful exams</h2>
+            <ul class="role-list">{% for exam in domain.exams %}<li><span>{{ loop.index }}</span>{{ exam }}</li>{% endfor %}</ul>
         </section>
     </aside>
 </section>
@@ -55,15 +87,15 @@
     <div class="section-shell">
         <div class="section-heading left">
             <span class="eyebrow">Keep learning</span>
-            <h2>Find courses from trusted platforms</h2>
-            <p>These links open current search results, so you can compare level, language, duration, and enrollment availability.</p>
+            <h2>Recommended course topics</h2>
+            <p>These links open current course search results for the topics listed in the roadmap data.</p>
         </div>
         <div class="course-grid">
             {% for course in domain.courses %}
             <a class="course-card" href="{{ course.url }}" target="_blank" rel="noopener noreferrer">
                 <span class="provider-mark">{{ course.provider[0] }}</span>
                 <div><span>{{ course.provider }}</span><h3>{{ course.title }}</h3></div>
-                <span aria-hidden="true">↗</span>
+                <span aria-hidden="true">&nearr;</span>
             </a>
             {% endfor %}
         </div>
