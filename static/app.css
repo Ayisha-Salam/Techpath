@@ -280,10 +280,12 @@ h2 { font-size: clamp(1.8rem, 3vw, 3.1rem); }
 .timeline-step h3 { margin: 7px 0; font-size: 1.35rem; }
 .timeline-step p { color: var(--muted); }
 .roadmap-sidebar { display: flex; flex-direction: column; gap: 18px; }
+.roadmap-detail-grid { margin-top: 34px; display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
 .info-card { padding: 28px; background: var(--white); border: 1px solid var(--line); border-radius: 19px; }
 .info-card h2 { margin-bottom: 22px; font-size: 1.4rem; }
 .skill-cloud { display: flex; flex-wrap: wrap; gap: 8px; }
 .skill-cloud span { padding: 8px 11px; color: var(--green-dark); background: var(--green-soft); border-radius: 20px; font-size: .78rem; font-weight: 700; }
+.compact-cloud span { font-size: .72rem; }
 .role-list { padding: 0; margin: 0; list-style: none; }
 .role-list li { padding: 13px 0; display: flex; align-items: center; gap: 12px; border-top: 1px solid var(--line); }
 .role-list li span { color: var(--orange); font-size: .7rem; font-weight: 800; }
@@ -302,7 +304,7 @@ h2 { font-size: clamp(1.8rem, 3vw, 3.1rem); }
     .hero { grid-template-columns: 1fr; padding-top: 75px; }
     .hero-visual { min-height: 450px; }
     .steps-grid, .domain-grid { grid-template-columns: 1fr 1fr; }
-    .path-grid, .results-layout, .roadmap-layout { grid-template-columns: 1fr; }
+    .path-grid, .results-layout, .roadmap-layout, .roadmap-detail-grid { grid-template-columns: 1fr; }
     .roadmap-hero-inner { grid-template-columns: 1fr; gap: 40px; }
     .roadmap-summary-card { max-width: 500px; }
     .site-footer { grid-template-columns: 1fr; text-align: center; }
@@ -341,4 +343,3 @@ h2 { font-size: clamp(1.8rem, 3vw, 3.1rem); }
     .roadmap-hero { padding-top: 155px; }
     .roadmap-layout { gap: 30px; }
 }
-
