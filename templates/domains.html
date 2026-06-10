@@ -13,15 +13,7 @@
             <span aria-hidden="true">⌕</span>
             <input id="domain-search" type="search" placeholder="Search domains or skills..." autocomplete="off">
         </label>
-        <div class="filter-row" id="domain-filters">
-            <button class="filter-chip active" type="button" data-filter="all" aria-pressed="true">All</button>
-            <button class="filter-chip" type="button" data-filter="development" aria-pressed="false">Development</button>
-            <button class="filter-chip" type="button" data-filter="data" aria-pressed="false">Data & AI</button>
-            <button class="filter-chip" type="button" data-filter="infrastructure" aria-pressed="false">Infrastructure</button>
-            <button class="filter-chip" type="button" data-filter="creative" aria-pressed="false">Creative</button>
-            <button class="filter-chip" type="button" data-filter="business" aria-pressed="false">Business</button>
-            <button class="filter-chip" type="button" data-filter="hardware" aria-pressed="false">Hardware</button>
-        </div>
+        
     </div>
     <div class="domain-grid" id="domain-grid">
         {% for domain in domains %}
