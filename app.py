@@ -185,3 +185,26 @@ def api_feedback(submission: FeedbackSubmission):
         workbook.save(FEEDBACK_FILE)
 
     return {"status": "success", "message": "Feedback submitted successfully."}
+    @app.post("/api/feedback")
+def api_feedback(submission: FeedbackSubmission):
+    # existing feedback code ...
+
+    return {
+        "status": "success",
+        "message": "Feedback submitted successfully."
+    }
+
+
+@app.get("/download-feedback")
+def download_feedback():
+    if not FEEDBACK_FILE.exists():
+        raise HTTPException(
+            status_code=404,
+            detail="No feedback file found."
+        )
+
+    return FileResponse(
+        path=str(FEEDBACK_FILE),
+        filename="feedback_responses.xlsx",
+        media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    )
