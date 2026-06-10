@@ -5,28 +5,34 @@ const emptyState = document.querySelector("#empty-state");
 let activeFilter = "all";
 
 function updateDomains() {
-    const query = searchInput.value.trim().toLowerCase();
+    const query = searchInput ? searchInput.value.trim().toLowerCase() : "";
     let visibleCount = 0;
 
     cards.forEach((card) => {
-        const categoryMatches = activeFilter === "all" || card.dataset.category === activeFilter;
-        const searchMatches = !query || card.dataset.search.includes(query);
+        const category = (card.dataset.category || "").trim().toLowerCase();
+        const searchableText = (card.dataset.search || "").toLowerCase();
+        const categoryMatches = activeFilter === "all" || category === activeFilter;
+        const searchMatches = !query || searchableText.includes(query);
         const visible = categoryMatches && searchMatches;
         card.hidden = !visible;
         if (visible) visibleCount += 1;
     });
 
-    emptyState.hidden = visibleCount !== 0;
+    if (emptyState) emptyState.hidden = visibleCount !== 0;
 }
 
 filters.forEach((filter) => {
     filter.addEventListener("click", () => {
-        filters.forEach((item) => item.classList.remove("active"));
+        filters.forEach((item) => {
+            item.classList.remove("active");
+            item.setAttribute("aria-pressed", "false");
+        });
         filter.classList.add("active");
-        activeFilter = filter.dataset.filter;
+        filter.setAttribute("aria-pressed", "true");
+        activeFilter = (filter.dataset.filter || "all").toLowerCase();
         updateDomains();
     });
 });
 
-searchInput.addEventListener("input", updateDomains);
-
+if (searchInput) searchInput.addEventListener("input", updateDomains);
+updateDomains();
