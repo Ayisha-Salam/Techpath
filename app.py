@@ -185,14 +185,7 @@ def api_feedback(submission: FeedbackSubmission):
         workbook.save(FEEDBACK_FILE)
 
     return {"status": "success", "message": "Feedback submitted successfully."}
-    @app.post("/api/feedback")
-def api_feedback(submission: FeedbackSubmission):
-    # existing feedback code ...
-
-    return {
-        "status": "success",
-        "message": "Feedback submitted successfully."
-    }
+   
 
 
 @app.get("/download-feedback")
