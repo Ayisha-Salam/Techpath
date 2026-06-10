@@ -1,10 +1,13 @@
 from pathlib import Path
 from random import choice
+from threading import Lock
+from datetime import datetime, timezone
 
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import FileResponse, HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
+from openpyxl import Workbook, load_workbook
 from pydantic import BaseModel, Field
 
 from career_data import DOMAINS, QUESTIONS, QUESTION_SETS, TRAIT_LABELS, get_domain_by_slug
@@ -12,6 +15,16 @@ from scoring import score_assessment
 
 
 BASE_DIR = Path(__file__).resolve().parent
+FEEDBACK_FILE = BASE_DIR / "feedback_responses.xlsx"
+feedback_lock = Lock()
+FEEDBACK_HEADERS = [
+    "Timestamp",
+    "Recommended Domain",
+    "Recommendation Relevance",
+    "Interest Level",
+    "Satisfaction Rating",
+    "User Comment",
+]
 
 app = FastAPI(
     title="TechPath",
@@ -33,6 +46,14 @@ ASSET_PATHS = {
 class AssessmentSubmission(BaseModel):
     answers: list[int] = Field(min_length=25, max_length=25)
     question_set_id: str = Field(min_length=1)
+
+
+class FeedbackSubmission(BaseModel):
+    recommended_domain: str = Field(min_length=1, max_length=120)
+    recommendation_relevance: str = Field(min_length=1, max_length=40)
+    interest_level: str = Field(min_length=1, max_length=40)
+    satisfaction_rating: int = Field(ge=1, le=5)
+    user_comment: str = Field(default="", max_length=1000)
 
 
 def render(request: Request, template: str, **context):
@@ -135,3 +156,32 @@ def api_assessment(submission: AssessmentSubmission):
     if submission.question_set_id not in QUESTION_SETS:
         raise HTTPException(status_code=422, detail="Unknown question set")
     return score_assessment(submission.answers, submission.question_set_id)
+
+
+@app.post("/api/feedback")
+def api_feedback(submission: FeedbackSubmission):
+    row = [
+        datetime.now(timezone.utc).isoformat(timespec="seconds"),
+        submission.recommended_domain,
+        submission.recommendation_relevance,
+        submission.interest_level,
+        submission.satisfaction_rating,
+        submission.user_comment.strip(),
+    ]
+
+    with feedback_lock:
+        if FEEDBACK_FILE.exists():
+            workbook = load_workbook(FEEDBACK_FILE)
+            worksheet = workbook.active
+            if worksheet.max_row == 0:
+                worksheet.append(FEEDBACK_HEADERS)
+        else:
+            workbook = Workbook()
+            worksheet = workbook.active
+            worksheet.title = "Feedback"
+            worksheet.append(FEEDBACK_HEADERS)
+
+        worksheet.append(row)
+        workbook.save(FEEDBACK_FILE)
+
+    return {"status": "success", "message": "Feedback submitted successfully."}
