@@ -11,7 +11,8 @@
     <link rel="stylesheet" href="/assets/app.css">
     {% block head %}{% endblock %}
 </head>
-<body>
+<body class="{% if request.url.path == '/' %}has-site-header{% else %}minimal-shell{% endif %}">
+    {% if request.url.path == '/' %}
     <header class="site-header">
         <a class="brand" href="/" aria-label="TechPath home">
             <span class="brand-mark">T</span>
@@ -24,23 +25,34 @@
         </nav>
         <button class="menu-button" type="button" aria-label="Open navigation" aria-expanded="false">Menu</button>
     </header>
+    {% endif %}
 
     <main>{% block content %}{% endblock %}</main>
 
     <footer class="site-footer">
-        <div>
+        <div class="footer-main">
             <a class="brand footer-brand" href="/">
                 <span class="brand-mark">T</span>
                 <span>TechPath</span>
             </a>
-            <p>Clearer choices for your career in technology.</p>
+            <p>Helping students discover the right path in technology through data-driven career guidance.</p>
         </div>
-        <div class="footer-links">
-            <a href="/domains">Domains</a>
-            <a href="/assessment">Assessment</a>
-            <a href="/docs">API docs</a>
+        <div class="footer-column">
+            <h2>Quick Links</h2>
+            <div class="footer-links">
+                <a href="/">Home</a>
+                <a href="/domains">Explore Domains</a>
+                <a href="/assessment">Assessment</a>
+            </div>
         </div>
-        <p class="footer-note">For educational guidance, not clinical or psychological diagnosis.</p>
+        <div class="footer-column">
+            <h2>Guidance Note</h2>
+            <p class="footer-note">Recommendations are intended for educational guidance and should be used alongside personal research and mentorship.</p>
+        </div>
+        <div class="footer-bottom">
+            <span>&copy; 2026 TechPath. All rights reserved.</span>
+            <a href="/assessment">Start assessment</a>
+        </div>
     </footer>
 
     <script src="/assets/common.js"></script>
