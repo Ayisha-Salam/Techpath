@@ -1,7 +1,9 @@
 from html import unescape
 
 from fastapi.testclient import TestClient
+from openpyxl import load_workbook
 
+import app as app_module
 from app import app
 from career_data import DOMAINS, QUESTIONS, QUESTION_SETS
 
@@ -72,6 +74,36 @@ def test_assessment_rejects_unknown_question_set():
         json={"answers": [4] * 25, "question_set_id": "missing"},
     )
     assert response.status_code == 422
+
+
+def test_feedback_endpoint_appends_to_excel(monkeypatch):
+    feedback_file = app_module.BASE_DIR / ".test-feedback.xlsx"
+    if feedback_file.exists():
+        feedback_file.unlink()
+    monkeypatch.setattr(app_module, "FEEDBACK_FILE", feedback_file)
+
+    try:
+        response = client.post(
+            "/api/feedback",
+            json={
+                "recommended_domain": "Data Analytics",
+                "recommendation_relevance": "Very relevant",
+                "interest_level": "Interested",
+                "satisfaction_rating": 5,
+                "user_comment": "Helpful shortlist.",
+            },
+        )
+
+        assert response.status_code == 200
+        workbook = load_workbook(feedback_file)
+        worksheet = workbook.active
+        assert worksheet.max_row == 2
+        assert [cell.value for cell in worksheet[1]] == app_module.FEEDBACK_HEADERS
+        assert worksheet["B2"].value == "Data Analytics"
+        assert worksheet["E2"].value == 5
+    finally:
+        if feedback_file.exists():
+            feedback_file.unlink()
 
 
 def test_every_roadmap_renders():
