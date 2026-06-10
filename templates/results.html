@@ -21,8 +21,63 @@
     </div>
     <div class="result-actions">
         <a class="button button-secondary" href="/assessment">Retake assessment</a>
-        <a class="text-link" href="/domains">Explore all domains →</a>
+        <a class="text-link" href="/domains">Explore all domains -></a>
     </div>
+
+    <section class="feedback-panel" aria-labelledby="feedback-title">
+        <div class="panel-heading">
+            <div>
+                <span class="eyebrow">Feedback</span>
+                <h2 id="feedback-title">Help improve TechPath</h2>
+            </div>
+        </div>
+        <form class="feedback-form" id="feedback-form">
+            <input type="hidden" id="feedback-domain" name="recommended_domain">
+
+            <fieldset>
+                <legend>How relevant was this recommendation?</legend>
+                <div class="choice-grid">
+                    <label><input type="radio" name="recommendation_relevance" value="Very relevant" required> Very relevant</label>
+                    <label><input type="radio" name="recommendation_relevance" value="Somewhat relevant"> Somewhat relevant</label>
+                    <label><input type="radio" name="recommendation_relevance" value="Neutral"> Neutral</label>
+                    <label><input type="radio" name="recommendation_relevance" value="Slightly relevant"> Slightly relevant</label>
+                    <label><input type="radio" name="recommendation_relevance" value="Not relevant"> Not relevant</label>
+                </div>
+            </fieldset>
+
+            <fieldset>
+                <legend>How interested are you in this recommended domain?</legend>
+                <div class="choice-grid">
+                    <label><input type="radio" name="interest_level" value="Very interested" required> Very interested</label>
+                    <label><input type="radio" name="interest_level" value="Interested"> Interested</label>
+                    <label><input type="radio" name="interest_level" value="Neutral"> Neutral</label>
+                    <label><input type="radio" name="interest_level" value="Slightly interested"> Slightly interested</label>
+                    <label><input type="radio" name="interest_level" value="Not interested"> Not interested</label>
+                </div>
+            </fieldset>
+
+            <fieldset>
+                <legend>Overall satisfaction</legend>
+                <div class="rating-choice-row" aria-label="Rate the assessment from 1 to 5">
+                    <label><input type="radio" name="satisfaction_rating" value="1" required><span>1</span></label>
+                    <label><input type="radio" name="satisfaction_rating" value="2"><span>2</span></label>
+                    <label><input type="radio" name="satisfaction_rating" value="3"><span>3</span></label>
+                    <label><input type="radio" name="satisfaction_rating" value="4"><span>4</span></label>
+                    <label><input type="radio" name="satisfaction_rating" value="5"><span>5</span></label>
+                </div>
+            </fieldset>
+
+            <label class="comment-field">
+                Optional comments
+                <textarea name="user_comment" rows="4" maxlength="1000" placeholder="Share suggestions or explain your response."></textarea>
+            </label>
+
+            <div class="feedback-actions">
+                <button class="button button-primary" type="submit">Submit Feedback</button>
+                <p class="feedback-message" id="feedback-message" aria-live="polite"></p>
+            </div>
+        </form>
+    </section>
 </section>
 
 <section class="section-shell missing-results" id="missing-results" hidden>
