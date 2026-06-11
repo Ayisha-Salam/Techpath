@@ -1,5 +1,4 @@
 from pathlib import Path
-from random import choice
 from threading import Lock
 from datetime import datetime, timezone
 
@@ -10,7 +9,13 @@ from fastapi.templating import Jinja2Templates
 from openpyxl import Workbook, load_workbook
 from pydantic import BaseModel, Field
 
-from career_data import DOMAINS, QUESTIONS, QUESTION_SETS, TRAIT_LABELS, get_domain_by_slug
+from career_data import (
+    DOMAINS,
+    TRAIT_LABELS,
+    generate_assessment_question_set,
+    get_domain_by_slug,
+    get_question_traits,
+)
 from scoring import score_assessment
 
 
@@ -114,17 +119,10 @@ def roadmap(request: Request, slug: str):
 
 @app.get("/api/questions")
 def api_questions(exclude_set_id: str | None = None):
-    available_sets = list(QUESTION_SETS)
-    if exclude_set_id in QUESTION_SETS and len(available_sets) > 1:
-        available_sets = [set_id for set_id in available_sets if set_id != exclude_set_id]
-    question_set_id = choice(available_sets)
-    questions = QUESTION_SETS[question_set_id]
+    question_set_id, questions = generate_assessment_question_set()
     return {
         "question_set_id": question_set_id,
-        "questions": [
-            {"id": index + 1, "text": question}
-            for index, question in enumerate(questions)
-        ],
+        "questions": questions,
         "scale": {
             "min": 1,
             "max": 5,
@@ -153,7 +151,7 @@ def api_domains():
 def api_assessment(submission: AssessmentSubmission):
     if any(answer < 1 or answer > 5 for answer in submission.answers):
         raise HTTPException(status_code=422, detail="Every answer must be between 1 and 5")
-    if submission.question_set_id not in QUESTION_SETS:
+    if not get_question_traits(submission.question_set_id):
         raise HTTPException(status_code=422, detail="Unknown question set")
     return score_assessment(submission.answers, submission.question_set_id)
 
