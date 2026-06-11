@@ -1,6 +1,9 @@
 ﻿import json
+import random
+from copy import deepcopy
 from pathlib import Path
 from urllib.parse import quote_plus
+from uuid import uuid4
 
 
 TRAIT_LABELS = {
@@ -197,6 +200,10 @@ QUESTION_TRAITS = [
 ]
 
 QUESTION_TRAIT_SETS = {set_id: QUESTION_TRAITS for set_id in QUESTION_SETS}
+GENERATED_QUESTION_TRAIT_SETS = {}
+
+QUESTIONS_PER_SECTION = 5
+REQUIRED_TRAITS = set(TRAIT_LABELS)
 
 
 def get_question_set(set_id: str):
@@ -204,7 +211,119 @@ def get_question_set(set_id: str):
 
 
 def get_question_traits(set_id: str):
-    return QUESTION_TRAIT_SETS.get(set_id)
+    return QUESTION_TRAIT_SETS.get(set_id) or GENERATED_QUESTION_TRAIT_SETS.get(set_id)
+
+
+def _section_entries():
+    entries = []
+    for section_index, set_id in enumerate(QUESTION_SETS):
+        section_questions = QUESTION_SETS[set_id]
+        section_traits = QUESTION_TRAIT_SETS[set_id]
+        section = []
+        for question_index, question in enumerate(section_questions):
+            section.append(
+                {
+                    "id": (section_index * len(section_questions)) + question_index + 1,
+                    "text": question,
+                    "section": set_id,
+                    "traits": section_traits[question_index],
+                }
+            )
+        entries.append(section)
+    return entries
+
+
+def _covered_traits(selection: list[dict]) -> set[str]:
+    return {trait for question in selection for trait in question["traits"]}
+
+
+def _repair_trait_coverage(selection: list[dict], sections: list[list[dict]], rng: random.Random) -> list[dict]:
+    selected_ids = {question["id"] for question in selection}
+
+    # Start from a random 5-per-section sample, then make targeted same-section
+    # swaps only for missing traits. This keeps most of the original random draw
+    # intact while guaranteeing every trait can contribute to scoring.
+    while True:
+        missing_traits = REQUIRED_TRAITS - _covered_traits(selection)
+        if not missing_traits:
+            return selection
+
+        best_swap = None
+        best_missing_count = len(missing_traits)
+        shuffled_missing = list(missing_traits)
+        rng.shuffle(shuffled_missing)
+
+        for missing_trait in shuffled_missing:
+            candidates = [
+                candidate
+                for section in sections
+                for candidate in section
+                if candidate["id"] not in selected_ids and missing_trait in candidate["traits"]
+            ]
+            rng.shuffle(candidates)
+
+            for candidate in candidates:
+                same_section_selected = [
+                    question for question in selection if question["section"] == candidate["section"]
+                ]
+                rng.shuffle(same_section_selected)
+
+                for removable in same_section_selected:
+                    trial = [
+                        candidate if question["id"] == removable["id"] else question
+                        for question in selection
+                    ]
+                    trial_missing_count = len(REQUIRED_TRAITS - _covered_traits(trial))
+                    if trial_missing_count < best_missing_count:
+                        best_missing_count = trial_missing_count
+                        best_swap = (removable, candidate)
+                        if trial_missing_count == 0:
+                            break
+                if best_missing_count == 0:
+                    break
+            if best_missing_count == 0:
+                break
+
+        if not best_swap:
+            raise ValueError("Unable to build an assessment with full trait coverage")
+
+        removable, candidate = best_swap
+        selection = [
+            candidate if question["id"] == removable["id"] else question
+            for question in selection
+        ]
+        selected_ids.remove(removable["id"])
+        selected_ids.add(candidate["id"])
+
+
+def generate_assessment_question_set() -> tuple[str, list[dict]]:
+    sections = _section_entries()
+    rng = random.SystemRandom()
+
+    for _ in range(100):
+        selection = [
+            question
+            for section in sections
+            for question in rng.sample(section, QUESTIONS_PER_SECTION)
+        ]
+        try:
+            selection = _repair_trait_coverage(selection, sections, rng)
+            break
+        except ValueError:
+            continue
+    else:
+        raise ValueError("Unable to build an assessment with full trait coverage")
+
+    selection.sort(key=lambda question: question["id"])
+
+    question_set_id = f"generated-{uuid4().hex}"
+    GENERATED_QUESTION_TRAIT_SETS[question_set_id] = [
+        deepcopy(question["traits"]) for question in selection
+    ]
+    return question_set_id, [
+        {"id": index + 1, "source_id": question["id"], "text": question["text"]}
+        for index, question in enumerate(selection)
+    ]
 
 
 DOMAIN_WEIGHTS = {
@@ -327,7 +446,7 @@ def slugify(name: str) -> str:
 
 
 def clean_text(value: str) -> str:
-    return value.replace("aEUR'", "Rs ").replace("a,?", "Rs ").replace("â‚¹", "\u20b9")
+    return value.replace("aEUR'", "Rs ").replace("a,?", "Rs ").replace("₹", "\u20b9")
 
 
 def require_list(record: dict, field: str) -> list:
