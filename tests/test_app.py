@@ -1,3 +1,4 @@
+from collections import Counter
 from html import unescape
 
 from fastapi.testclient import TestClient
@@ -5,7 +6,7 @@ from openpyxl import load_workbook
 
 import app as app_module
 from app import app
-from career_data import DOMAINS, QUESTIONS, QUESTION_SETS
+from career_data import DOMAINS, QUESTIONS, QUESTION_SETS, TRAIT_LABELS, get_question_traits
 
 
 client = TestClient(app)
@@ -31,26 +32,37 @@ def test_catalog_has_25_domains_and_questions():
     assert len({domain["slug"] for domain in DOMAINS}) == 25
 
 
-def test_questions_endpoint_returns_a_set_id():
+def test_questions_endpoint_returns_generated_trait_covered_subset():
     response = client.get("/api/questions")
     assert response.status_code == 200
     payload = response.json()
-    assert payload["question_set_id"] in QUESTION_SETS
-    assert len(payload["questions"]) == 25
+
+    questions = payload["questions"]
+    source_ids = [question["source_id"] for question in questions]
+    section_counts = Counter((source_id - 1) // 25 for source_id in source_ids)
+    traits = get_question_traits(payload["question_set_id"])
+    covered_traits = {trait for mapping in traits for trait in mapping}
+
+    assert payload["question_set_id"].startswith("generated-")
+    assert len(questions) == 25
+    assert len(set(source_ids)) == 25
+    assert section_counts == {0: 5, 1: 5, 2: 5, 3: 5, 4: 5}
+    assert covered_traits == set(TRAIT_LABELS)
 
 
-def test_questions_endpoint_can_exclude_previous_set():
-    response = client.get("/api/questions?exclude_set_id=set-1")
-    assert response.status_code == 200
-    payload = response.json()
-    assert payload["question_set_id"] in QUESTION_SETS
-    assert payload["question_set_id"] != "set-1"
+def test_questions_endpoint_generates_different_sessions():
+    first = client.get("/api/questions").json()
+    second = client.get(f"/api/questions?exclude_set_id={first['question_set_id']}").json()
+
+    assert first["question_set_id"] != second["question_set_id"]
+    assert len(second["questions"]) == 25
 
 
 def test_assessment_returns_ranked_recommendations():
+    questions_payload = client.get("/api/questions").json()
     response = client.post(
         "/api/assessment",
-        json={"answers": [4] * 25, "question_set_id": "set-1"},
+        json={"answers": [4] * 25, "question_set_id": questions_payload["question_set_id"]},
     )
     assert response.status_code == 200
     payload = response.json()
