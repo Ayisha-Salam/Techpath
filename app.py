@@ -1,4 +1,5 @@
 from pathlib import Path
+from random import choice
 from threading import Lock
 from datetime import datetime, timezone
 
@@ -9,13 +10,7 @@ from fastapi.templating import Jinja2Templates
 from openpyxl import Workbook, load_workbook
 from pydantic import BaseModel, Field
 
-from career_data import (
-    DOMAINS,
-    TRAIT_LABELS,
-    generate_assessment_question_set,
-    get_domain_by_slug,
-    get_question_traits,
-)
+from career_data import DOMAINS, QUESTIONS, QUESTION_SETS, TRAIT_LABELS, get_domain_by_slug
 from scoring import score_assessment
 
 
@@ -119,10 +114,17 @@ def roadmap(request: Request, slug: str):
 
 @app.get("/api/questions")
 def api_questions(exclude_set_id: str | None = None):
-    question_set_id, questions = generate_assessment_question_set()
+    available_sets = list(QUESTION_SETS)
+    if exclude_set_id in QUESTION_SETS and len(available_sets) > 1:
+        available_sets = [set_id for set_id in available_sets if set_id != exclude_set_id]
+    question_set_id = choice(available_sets)
+    questions = QUESTION_SETS[question_set_id]
     return {
         "question_set_id": question_set_id,
-        "questions": questions,
+        "questions": [
+            {"id": index + 1, "text": question}
+            for index, question in enumerate(questions)
+        ],
         "scale": {
             "min": 1,
             "max": 5,
@@ -151,7 +153,7 @@ def api_domains():
 def api_assessment(submission: AssessmentSubmission):
     if any(answer < 1 or answer > 5 for answer in submission.answers):
         raise HTTPException(status_code=422, detail="Every answer must be between 1 and 5")
-    if not get_question_traits(submission.question_set_id):
+    if submission.question_set_id not in QUESTION_SETS:
         raise HTTPException(status_code=422, detail="Unknown question set")
     return score_assessment(submission.answers, submission.question_set_id)
 
@@ -166,6 +168,8 @@ def api_feedback(submission: FeedbackSubmission):
         submission.satisfaction_rating,
         submission.user_comment.strip(),
     ]
+    print("Feedback row:")
+    print("Saving to:",FEEDBACK_FILE.resolve())
 
     with feedback_lock:
         if FEEDBACK_FILE.exists():
@@ -183,19 +187,3 @@ def api_feedback(submission: FeedbackSubmission):
         workbook.save(FEEDBACK_FILE)
 
     return {"status": "success", "message": "Feedback submitted successfully."}
-   
-
-
-@app.get("/download-feedback")
-def download_feedback():
-    if not FEEDBACK_FILE.exists():
-        raise HTTPException(
-            status_code=404,
-            detail="No feedback file found."
-        )
-
-    return FileResponse(
-        path=str(FEEDBACK_FILE),
-        filename="feedback_responses.xlsx",
-        media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-    )
