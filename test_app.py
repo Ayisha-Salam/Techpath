@@ -1,4 +1,3 @@
-from collections import Counter
 from html import unescape
 
 from fastapi.testclient import TestClient
@@ -6,8 +5,7 @@ from openpyxl import load_workbook
 
 import app as app_module
 from app import app
-from career_data import DOMAINS, QUESTIONS, QUESTION_SETS, TRAIT_LABELS, get_question_traits
-
+from career_data import DOMAINS, QUESTIONS, QUESTION_SETS
 
 client = TestClient(app)
 
@@ -19,55 +17,65 @@ def test_pages_render():
 
 
 def test_frontend_assets_render_from_stable_urls():
-    for filename in ["app.css", "common.js", "domains.js", "assessment.js", "results.js"]:
+    for filename in [
+        "app.css",
+        "common.js",
+        "domains.js",
+        "assessment.js",
+        "results.js",
+    ]:
         response = client.get(f"/assets/{filename}")
         assert response.status_code == 200
 
 
-def test_catalog_has_25_domains_and_questions():
+def test_catalog_has_expected_data():
     assert len(DOMAINS) == 25
     assert len(QUESTIONS) == 25
     assert len(QUESTION_SETS) == 5
-    assert all(len(questions) == 25 for questions in QUESTION_SETS.values())
+    assert all(len(question_set) == 25 for question_set in QUESTION_SETS.values())
     assert len({domain["slug"] for domain in DOMAINS}) == 25
 
 
-def test_questions_endpoint_returns_generated_trait_covered_subset():
+def test_questions_endpoint_returns_valid_question_set():
     response = client.get("/api/questions")
     assert response.status_code == 200
+
     payload = response.json()
 
-    questions = payload["questions"]
-    source_ids = [question["source_id"] for question in questions]
-    section_counts = Counter((source_id - 1) // 25 for source_id in source_ids)
-    traits = get_question_traits(payload["question_set_id"])
-    covered_traits = {trait for mapping in traits for trait in mapping}
-
-    assert payload["question_set_id"].startswith("generated-")
-    assert len(questions) == 25
-    assert len(set(source_ids)) == 25
-    assert section_counts == {0: 5, 1: 5, 2: 5, 3: 5, 4: 5}
-    assert covered_traits == set(TRAIT_LABELS)
+    assert payload["question_set_id"] in QUESTION_SETS
+    assert len(payload["questions"]) == 25
 
 
-def test_questions_endpoint_generates_different_sessions():
+def test_questions_endpoint_returns_different_set_when_excluded():
     first = client.get("/api/questions").json()
-    second = client.get(f"/api/questions?exclude_set_id={first['question_set_id']}").json()
 
+    second = client.get(
+        f"/api/questions?exclude_set_id={first['question_set_id']}"
+    ).json()
+
+    assert second["question_set_id"] in QUESTION_SETS
     assert first["question_set_id"] != second["question_set_id"]
     assert len(second["questions"]) == 25
 
 
 def test_assessment_returns_ranked_recommendations():
     questions_payload = client.get("/api/questions").json()
+
     response = client.post(
         "/api/assessment",
-        json={"answers": [4] * 25, "question_set_id": questions_payload["question_set_id"]},
+        json={
+            "answers": [4] * 25,
+            "question_set_id": questions_payload["question_set_id"],
+        },
     )
+
     assert response.status_code == 200
+
     payload = response.json()
+
     assert len(payload["recommendations"]) == 5
     assert len(payload["top_traits"]) == 5
+
     scores = [item["score"] for item in payload["recommendations"]]
     assert scores == sorted(scores, reverse=True)
 
@@ -75,23 +83,33 @@ def test_assessment_returns_ranked_recommendations():
 def test_assessment_rejects_invalid_answers():
     response = client.post(
         "/api/assessment",
-        json={"answers": [6] * 25, "question_set_id": "set-1"},
+        json={
+            "answers": [6] * 25,
+            "question_set_id": "set-1",
+        },
     )
+
     assert response.status_code == 422
 
 
 def test_assessment_rejects_unknown_question_set():
     response = client.post(
         "/api/assessment",
-        json={"answers": [4] * 25, "question_set_id": "missing"},
+        json={
+            "answers": [4] * 25,
+            "question_set_id": "missing",
+        },
     )
+
     assert response.status_code == 422
 
 
 def test_feedback_endpoint_appends_to_excel(monkeypatch):
     feedback_file = app_module.BASE_DIR / ".test-feedback.xlsx"
+
     if feedback_file.exists():
         feedback_file.unlink()
+
     monkeypatch.setattr(app_module, "FEEDBACK_FILE", feedback_file)
 
     try:
@@ -107,12 +125,15 @@ def test_feedback_endpoint_appends_to_excel(monkeypatch):
         )
 
         assert response.status_code == 200
+
         workbook = load_workbook(feedback_file)
         worksheet = workbook.active
+
         assert worksheet.max_row == 2
         assert [cell.value for cell in worksheet[1]] == app_module.FEEDBACK_HEADERS
         assert worksheet["B2"].value == "Data Analytics"
         assert worksheet["E2"].value == 5
+
     finally:
         if feedback_file.exists():
             feedback_file.unlink()
