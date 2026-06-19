@@ -6,8 +6,8 @@
         <div>
             <a class="back-link" href="/domains">&larr; All domains</a>
             <span class="domain-category light-text">{{ domain.category }}</span>
-            <h1>{{ domain.name }}</h1>
-            <p>{{ domain.summary }}</p>
+            <h1>{{ domain.name or domain.domain }}</h1>
+            <p>{{ domain.summary or domain.overview }}</p>
             <div class="button-row">
                 <a class="button button-light" href="#roadmap">View learning path &darr;</a>
                 <a class="button button-ghost" href="/assessment">Check my fit</a>
@@ -15,9 +15,9 @@
         </div>
         <div class="roadmap-summary-card">
             <span class="mini-label">Career snapshot</span>
-            <div><strong>{{ domain.salary }}</strong><span>Typical entry-level range in India</span></div>
-            <div><strong>{{ domain.skills|length }}</strong><span>Core skill areas</span></div>
-            <div><strong>{{ domain.careers|length }}</strong><span>Starter career directions</span></div>
+            <div><strong>{{ domain.salary or domain.expectedEntryLevelSalaryIndia }}</strong><span>Typical entry-level range in India</span></div>
+            <div><strong>{{ (domain.skills or domain.skillsRequired)|length }}</strong><span>Core skill areas</span></div>
+            <div><strong>{{ (domain.careers or domain.careerOpportunities)|length }}</strong><span>Starter career directions</span></div>
         </div>
     </div>
 </section>
@@ -45,7 +45,7 @@
             <section class="info-card">
                 <span class="eyebrow">Milestones</span>
                 <h2>Project ideas</h2>
-                <ul class="role-list">{% for project in domain.projects %}<li><span>{{ loop.index }}</span>{{ project }}</li>{% endfor %}</ul>
+                <ul class="role-list">{% for project in domain.projects or domain.projectIdeas %}<li><span>{{ loop.index }}</span>{{ project }}</li>{% endfor %}</ul>
             </section>
             <section class="info-card">
                 <span class="eyebrow">Credentials</span>
@@ -58,27 +58,27 @@
         <section class="info-card">
             <span class="eyebrow">Core toolkit</span>
             <h2>Skills to develop</h2>
-            <div class="skill-cloud">{% for skill in domain.skills %}<span>{{ skill }}</span>{% endfor %}</div>
+            <div class="skill-cloud">{% for skill in domain.skills or domain.skillsRequired %}<span>{{ skill }}</span>{% endfor %}</div>
         </section>
         <section class="info-card">
             <span class="eyebrow">Personal fit</span>
             <h2>Essential qualities</h2>
-            <div class="skill-cloud">{% for quality in domain.qualities %}<span>{{ quality }}</span>{% endfor %}</div>
+            <div class="skill-cloud">{% for quality in domain.qualities or domain.essentialQualities %}<span>{{ quality }}</span>{% endfor %}</div>
         </section>
         <section class="info-card">
             <span class="eyebrow">Career options</span>
             <h2>Roles to explore</h2>
-            <ul class="role-list">{% for career in domain.careers %}<li><span>{{ loop.index }}</span>{{ career }}</li>{% endfor %}</ul>
+            <ul class="role-list">{% for career in domain.careers or domain.careerOpportunities %}<li><span>{{ loop.index }}</span>{{ career }}</li>{% endfor %}</ul>
         </section>
         <section class="info-card">
             <span class="eyebrow">Hiring targets</span>
             <h2>Companies to research</h2>
-            <div class="skill-cloud compact-cloud">{% for company in domain.companies %}<span>{{ company }}</span>{% endfor %}</div>
+            <div class="skill-cloud compact-cloud">{% for company in domain.companies or domain.expectedCompanies %}<span>{{ company }}</span>{% endfor %}</div>
         </section>
         <section class="info-card">
             <span class="eyebrow">Preparation</span>
             <h2>Useful exams</h2>
-            <ul class="role-list">{% for exam in domain.exams %}<li><span>{{ loop.index }}</span>{{ exam }}</li>{% endfor %}</ul>
+            <ul class="role-list">{% for exam in domain.exams or domain.bestExams %}<li><span>{{ loop.index }}</span>{{ exam }}</li>{% endfor %}</ul>
         </section>
     </aside>
 </section>
