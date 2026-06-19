@@ -1,4 +1,6 @@
-﻿from urllib.parse import quote_plus
+﻿import json
+from pathlib import Path
+from urllib.parse import quote_plus
 
 
 TRAIT_LABELS = {
@@ -234,32 +236,81 @@ DOMAIN_WEIGHTS = {
 }
 
 
-DOMAIN_SEEDS = [
-    ("Software Development", "development", "code", "Build reliable software applications and systems.", ["Python or Java", "Data structures", "OOP", "Git", "APIs"], ["Programming foundations", "Build console applications", "Learn databases and APIs", "Ship a portfolio project"], ["Software Engineer", "Backend Developer", "Application Developer"], "4-12 LPA"),
-    ("Web Development", "development", "browser", "Create accessible, responsive websites and web applications.", ["HTML", "CSS", "JavaScript", "React", "Backend APIs"], ["Web foundations", "Interactive interfaces", "Backend and databases", "Deploy a full-stack project"], ["Frontend Developer", "Backend Developer", "Full-stack Developer"], "3-12 LPA"),
-    ("Mobile App Development", "development", "mobile", "Design and build applications for Android and iOS.", ["Kotlin", "Flutter", "Dart", "Mobile UI", "Firebase"], ["Programming basics", "Mobile interface design", "Data and device APIs", "Publish a complete app"], ["Android Developer", "Flutter Developer", "Mobile Engineer"], "4-12 LPA"),
-    ("Data Analytics", "data", "chart", "Turn raw data into insights that support decisions.", ["Excel", "SQL", "Python", "Statistics", "Power BI"], ["Spreadsheet analysis", "SQL and statistics", "Python and dashboards", "Complete a business case study"], ["Data Analyst", "Reporting Analyst", "Business Analyst"], "4-10 LPA"),
-    ("Artificial Intelligence & Machine Learning", "data", "spark", "Create predictive and intelligent systems from data.", ["Python", "Linear algebra", "Machine learning", "Deep learning", "MLOps"], ["Python and mathematics", "Classical ML projects", "Neural networks", "Deploy an ML application"], ["ML Engineer", "AI Engineer", "Data Scientist"], "6-18 LPA"),
-    ("Cybersecurity", "infrastructure", "shield", "Protect systems, networks, and data from digital threats.", ["Linux", "Networking", "Security fundamentals", "SIEM", "Ethical hacking"], ["Network and OS basics", "Security labs", "Detection and response", "Build a defensive portfolio"], ["Security Analyst", "SOC Analyst", "Penetration Tester"], "4-12 LPA"),
-    ("Cloud Computing", "infrastructure", "cloud", "Build and operate scalable services on cloud platforms.", ["Linux", "Networking", "AWS or Azure", "Containers", "Infrastructure as code"], ["Infrastructure basics", "Core cloud services", "Containers and automation", "Deploy a production-style system"], ["Cloud Engineer", "Cloud Administrator", "Solutions Associate"], "5-14 LPA"),
-    ("DevOps & Site Reliability Engineering", "infrastructure", "cycle", "Automate delivery and keep software systems dependable.", ["Linux", "Git", "Docker", "Kubernetes", "CI/CD"], ["Linux and scripting", "Containers and pipelines", "Kubernetes and monitoring", "Operate a deployed service"], ["DevOps Engineer", "SRE Associate", "Platform Engineer"], "6-18 LPA"),
-    ("Networking", "infrastructure", "network", "Design, connect, and troubleshoot computer networks.", ["TCP/IP", "Routing", "Switching", "Cisco tools", "Network security"], ["Network fundamentals", "Routing and switching labs", "Security and automation", "Prepare for CCNA"], ["Network Engineer", "NOC Engineer", "Network Administrator"], "3-9 LPA"),
-    ("Database Management", "data", "database", "Design, secure, and optimize the data layer of applications.", ["SQL", "DBMS", "PostgreSQL", "Data modelling", "Backup and recovery"], ["Relational foundations", "Advanced SQL", "Administration and tuning", "Build a database project"], ["Database Administrator", "SQL Developer", "Database Engineer"], "4-10 LPA"),
-    ("UI/UX Design", "creative", "pen", "Research and design useful, inclusive digital experiences.", ["Figma", "User research", "Wireframing", "Prototyping", "Design systems"], ["Visual design basics", "UX research methods", "Prototype and test", "Publish case studies"], ["UI Designer", "UX Designer", "Product Designer"], "4-12 LPA"),
-    ("QA & Software Testing", "development", "check", "Improve product quality through systematic testing.", ["Test design", "Bug tracking", "Selenium", "API testing", "Automation"], ["Testing principles", "Manual and API testing", "Automation frameworks", "Test a complete application"], ["QA Engineer", "Automation Tester", "Test Analyst"], "3-9 LPA"),
-    ("Game Development", "creative", "game", "Build interactive game experiences for multiple platforms.", ["C#", "Unity", "Game design", "3D basics", "Version control"], ["Programming and game loops", "Unity fundamentals", "Systems and polish", "Publish a playable game"], ["Game Developer", "Gameplay Programmer", "Technical Designer"], "4-12 LPA"),
-    ("Embedded Systems & IoT", "hardware", "chip", "Combine hardware and software to create connected devices.", ["Embedded C", "Microcontrollers", "Arduino", "Sensors", "IoT protocols"], ["Electronics and C", "Microcontroller labs", "Connectivity and RTOS", "Build an IoT prototype"], ["Embedded Engineer", "Firmware Engineer", "IoT Developer"], "4-11 LPA"),
-    ("Blockchain Development", "development", "blocks", "Create decentralized applications and smart contracts.", ["Solidity", "Ethereum", "Web3", "Smart contracts", "Security"], ["Distributed systems basics", "Solidity contracts", "DApp integration", "Audit and deploy a project"], ["Blockchain Developer", "Smart Contract Engineer", "Web3 Developer"], "6-18 LPA"),
-    ("AR/VR Development", "creative", "cube", "Develop immersive applications for learning, work, and play.", ["Unity", "C#", "3D interaction", "ARCore", "XR toolkit"], ["3D and programming basics", "Unity interaction", "AR/VR prototypes", "Create an immersive portfolio"], ["XR Developer", "Unity Developer", "AR Engineer"], "4-14 LPA"),
-    ("Robotics & Automation", "hardware", "robot", "Create intelligent machines and automated systems.", ["Python", "C++", "Electronics", "ROS", "Control systems"], ["Programming and electronics", "Sensors and actuators", "ROS and controls", "Build an autonomous prototype"], ["Robotics Engineer", "Automation Engineer", "Controls Engineer"], "4-12 LPA"),
-    ("IT Support & System Administration", "infrastructure", "tools", "Keep devices, users, servers, and workplace IT running.", ["Windows", "Linux", "Networking", "Active Directory", "Scripting"], ["Hardware and OS basics", "Networks and troubleshooting", "Server administration", "Run a home lab"], ["IT Support Engineer", "System Administrator", "NOC Engineer"], "3-8 LPA"),
-    ("Product Management", "business", "compass", "Guide digital products from user problem to measurable outcome.", ["Product discovery", "Analytics", "Agile", "Roadmapping", "Stakeholder management"], ["Business and UX basics", "Discovery and metrics", "Product case studies", "Lead a student product"], ["Associate Product Manager", "Product Analyst", "Product Owner"], "6-18 LPA"),
-    ("Project Management", "business", "calendar", "Plan and coordinate technical work across people and timelines.", ["Agile", "Scrum", "Jira", "Risk management", "Documentation"], ["Team and planning basics", "Agile delivery", "Tools and risk control", "Manage a real project"], ["Project Coordinator", "PMO Analyst", "Scrum Master"], "4-12 LPA"),
-    ("Business Intelligence", "data", "dashboard", "Build dashboards and models that explain business performance.", ["SQL", "Power BI", "Tableau", "Excel", "Data modelling"], ["Excel and SQL", "Dashboard principles", "DAX and modelling", "Publish a BI portfolio"], ["BI Analyst", "Power BI Developer", "Reporting Analyst"], "4-12 LPA"),
-    ("Enterprise Systems (ERP/CRM)", "business", "building", "Configure platforms that connect core business processes.", ["SAP or Salesforce", "SQL", "Business analysis", "Workflows", "Documentation"], ["Business process basics", "Choose an ERP or CRM", "Configuration projects", "Prepare for platform certification"], ["ERP Consultant", "CRM Administrator", "Implementation Associate"], "4-14 LPA"),
-    ("Digital Forensics", "infrastructure", "search", "Investigate digital evidence and reconstruct cyber incidents.", ["Operating systems", "Networking", "Forensic tools", "Incident response", "Report writing"], ["OS and network basics", "Security foundations", "Forensic labs", "Complete an investigation case"], ["Forensics Analyst", "Incident Response Analyst", "Cyber Investigator"], "4-12 LPA"),
-    ("IT Consulting", "business", "briefcase", "Help organizations solve business problems with technology.", ["Business analysis", "Presentation", "Cloud basics", "Data analysis", "Project coordination"], ["Technology and business basics", "Structured problem solving", "Case studies", "Build a consulting portfolio"], ["Technology Analyst", "IT Consultant", "Implementation Consultant"], "5-15 LPA"),
-    ("Generative AI & Prompt Engineering", "data", "wand", "Build useful workflows and products with generative AI.", ["Python", "Prompt design", "LLM basics", "APIs", "RAG"], ["Python and AI foundations", "Prompt evaluation", "Build RAG and tool workflows", "Deploy a responsible AI app"], ["GenAI Developer", "AI Automation Specialist", "LLM App Developer"], "5-18 LPA"),
+ROADMAP_DATA_PATH = Path(__file__).resolve().parent / "roadmap.json"
+
+CATEGORY_BY_DOMAIN = {
+    "Software Development": "development",
+    "Web Development": "development",
+    "Mobile App Development": "development",
+    "Data Analytics": "data",
+    "Artificial Intelligence & Machine Learning": "data",
+    "Cybersecurity": "infrastructure",
+    "Cloud Computing": "infrastructure",
+    "DevOps & Site Reliability Engineering": "infrastructure",
+    "Networking": "infrastructure",
+    "Database Management": "data",
+    "UI/UX Design": "creative",
+    "Quality Assurance & Software Testing": "development",
+    "Game Development": "creative",
+    "Embedded Systems & IoT": "hardware",
+    "Blockchain Development": "development",
+    "AR/VR Development": "creative",
+    "Robotics & Automation": "hardware",
+    "IT Support & System Administration": "infrastructure",
+    "Product Management": "business",
+    "Project Management": "business",
+    "Business Intelligence": "data",
+    "Enterprise Systems (ERP/CRM)": "business",
+    "Digital Forensics": "infrastructure",
+    "IT Consulting": "business",
+    "Generative AI & Prompt Engineering": "data",
+}
+
+ICON_BY_DOMAIN = {
+    "Software Development": "code",
+    "Web Development": "browser",
+    "Mobile App Development": "mobile",
+    "Data Analytics": "chart",
+    "Artificial Intelligence & Machine Learning": "spark",
+    "Cybersecurity": "shield",
+    "Cloud Computing": "cloud",
+    "DevOps & Site Reliability Engineering": "cycle",
+    "Networking": "network",
+    "Database Management": "database",
+    "UI/UX Design": "pen",
+    "Quality Assurance & Software Testing": "check",
+    "Game Development": "game",
+    "Embedded Systems & IoT": "chip",
+    "Blockchain Development": "blocks",
+    "AR/VR Development": "cube",
+    "Robotics & Automation": "robot",
+    "IT Support & System Administration": "tools",
+    "Product Management": "compass",
+    "Project Management": "calendar",
+    "Business Intelligence": "dashboard",
+    "Enterprise Systems (ERP/CRM)": "building",
+    "Digital Forensics": "search",
+    "IT Consulting": "briefcase",
+    "Generative AI & Prompt Engineering": "wand",
+}
+
+DOMAIN_WEIGHT_ALIASES = {
+    "Quality Assurance & Software Testing": "QA & Software Testing",
+}
+
+REQUIRED_ROADMAP_FIELDS = [
+    "domain",
+    "overview",
+    "essentialQualities",
+    "skillsRequired",
+    "roadmapTimeline",
+    "certifications",
+    "careerOpportunities",
+    "recommendedCourses",
+    "expectedEntryLevelSalaryIndia",
+    "expectedCompanies",
+    "bestExams",
+    "projectIdeas",
 ]
 
 
@@ -275,42 +326,101 @@ def slugify(name: str) -> str:
     )
 
 
-def course_links(domain_name: str) -> list[dict]:
-    query = quote_plus(domain_name)
+def clean_text(value: str) -> str:
+    return value.replace("aEUR'", "Rs ").replace("a,?", "Rs ").replace("â‚¹", "\u20b9")
+
+
+def require_list(record: dict, field: str) -> list:
+    value = record.get(field, [])
+    return value if isinstance(value, list) else []
+
+
+def parse_timeline_item(item: str, index: int) -> dict:
+    duration, _, title = item.partition(":")
+    return {
+        "stage": index + 1,
+        "duration": clean_text(duration.strip()) if title else f"Stage {index + 1}",
+        "title": clean_text(title.strip() if title else item),
+    }
+
+
+def course_links(domain_name: str, courses: list[str]) -> list[dict]:
     return [
         {
-            "provider": "NPTEL",
-            "title": f"Explore {domain_name} courses",
-            "url": f"https://nptel.ac.in/courses?searchText={query}",
-        },
-        {
-            "provider": "Coursera",
-            "title": f"Learn {domain_name}",
-            "url": f"https://www.coursera.org/search?query={query}",
-        },
+            "provider": "Course search",
+            "title": clean_text(course),
+            "url": f"https://www.coursera.org/search?query={quote_plus(course + ' ' + domain_name)}",
+        }
+        for course in courses
     ]
 
 
-DOMAINS = [
-    {
+def validate_roadmap_record(record: dict) -> list[str]:
+    return [field for field in REQUIRED_ROADMAP_FIELDS if field not in record]
+
+
+def load_roadmap_records() -> list[dict]:
+    records = json.loads(ROADMAP_DATA_PATH.read_text(encoding="utf-8"))
+    if not isinstance(records, list):
+        raise ValueError("roadmap.json must contain a list of domain roadmap objects")
+    return records
+
+
+def adapt_roadmap_record(record: dict) -> dict:
+    name = clean_text(record["domain"])
+    courses = [clean_text(course) for course in require_list(record, "recommendedCourses")]
+    qualities = [clean_text(item) for item in require_list(record, "essentialQualities")]
+    skills = [clean_text(item) for item in require_list(record, "skillsRequired")]
+    roadmap = [
+        parse_timeline_item(item, index)
+        for index, item in enumerate(require_list(record, "roadmapTimeline"))
+    ]
+    certifications = [clean_text(item) for item in require_list(record, "certifications")]
+    careers = [clean_text(item) for item in require_list(record, "careerOpportunities")]
+    salary = clean_text(record.get("expectedEntryLevelSalaryIndia", "Not specified"))
+    companies = [clean_text(item) for item in require_list(record, "expectedCompanies")]
+    exams = [clean_text(item) for item in require_list(record, "bestExams")]
+    projects = [clean_text(item) for item in require_list(record, "projectIdeas")]
+
+    return {
+        "id": record.get("id"),
         "name": name,
+        "domain": name,
         "slug": slugify(name),
-        "category": category,
-        "icon": icon,
-        "summary": summary,
+        "category": CATEGORY_BY_DOMAIN.get(name, "development"),
+        "icon": ICON_BY_DOMAIN.get(name, "roadmap"),
+        "summary": clean_text(record.get("overview", "")),
+        "overview": clean_text(record.get("overview", "")),
+        "qualities": qualities,
+        "essentialQualities": qualities,
         "skills": skills,
-        "roadmap": [
-            {"stage": index + 1, "title": step, "duration": duration}
-            for index, (step, duration) in enumerate(
-                zip(steps, ["0-3 months", "3-6 months", "6-12 months", "12+ months"])
-            )
-        ],
+        "skillsRequired": skills,
+        "roadmap": roadmap,
+        "roadmapTimeline": [clean_text(item) for item in require_list(record, "roadmapTimeline")],
+        "certifications": certifications,
         "careers": careers,
+        "careerOpportunities": careers,
+        "courses": course_links(name, courses),
+        "recommended_courses": courses,
+        "recommendedCourses": courses,
         "salary": salary,
-        "courses": course_links(name),
+        "expectedEntryLevelSalaryIndia": salary,
+        "companies": companies,
+        "expectedCompanies": companies,
+        "exams": exams,
+        "bestExams": exams,
+        "projects": projects,
+        "projectIdeas": projects,
+        "missing_fields": validate_roadmap_record(record),
     }
-    for name, category, icon, summary, skills, steps, careers, salary in DOMAIN_SEEDS
-]
+
+
+DOMAINS = [adapt_roadmap_record(record) for record in load_roadmap_records()]
+
+
+for new_name, old_name in DOMAIN_WEIGHT_ALIASES.items():
+    if old_name in DOMAIN_WEIGHTS and new_name not in DOMAIN_WEIGHTS:
+        DOMAIN_WEIGHTS[new_name] = DOMAIN_WEIGHTS.pop(old_name)
 
 
 def get_domain_by_slug(slug: str):
